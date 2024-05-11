@@ -1,10 +1,13 @@
 const express = require('express')
 const admin = require('firebase-admin');
 const axios = require('axios');
+const cors = require('cors')
 require('dotenv').config()
 
 const app = express()
 const PORT = 3000
+
+app.use(cors())
 
 var serviceAccount = require("./serviceAccount.json")
 
@@ -40,5 +43,20 @@ app.get('/profiles', async (req, res) => {
     res.send(data)
 })
 
+
+app.get('/rate', async (req, res) => {
+    const to = req.query.to
+    const from = req.query.from
+    const rate = req.query.rate
+    const reason = req.query.reason
+    const rateRef = db.ref('/profiles/'+to+'/rates')
+    rateRef.push({to:to, from:from, rate:rate, reason:reason})
+});
+
+// app.get('/user', async (req, res) => {
+//     const muid = req.query.muid
+//     const data = await ref.child(muid).get()
+//     res.send(data)
+// })
 
 app.listen(PORT, ()=>console.log('listening on port',PORT));
