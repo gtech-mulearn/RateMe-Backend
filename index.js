@@ -53,10 +53,27 @@ app.get('/rate', async (req, res) => {
     rateRef.push({to:to, from:from, rate:rate, reason:reason})
 });
 
-// app.get('/user', async (req, res) => {
-//     const muid = req.query.muid
-//     const data = await ref.child(muid).get()
-//     res.send(data)
-// })
+app.get('/user', async (req, res) => {
+        try {
+    const muid = req.query.muid;
+    console.log(muid)
+
+    if (!muid) {
+        return res.status(400).json({ error: 'Missing muid parameter' });
+    }
+
+    const snapshot = await ref.child(muid).get();
+
+    if (!snapshot.exists()) {
+        return res.status(404).json({ error: 'User not found' });
+    }
+
+    const userData = snapshot.val();
+    return res.status(200).json(userData);
+} catch (error) {
+    console.error('Error fetching user data:', error);
+    return res.status(500).json({ error: 'Internal server error' });
+}
+})
 
 app.listen(PORT, ()=>console.log('listening on port',PORT));
