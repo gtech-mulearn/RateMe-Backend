@@ -1,79 +1,27 @@
-const express = require('express')
-const admin = require('firebase-admin');
-const axios = require('axios');
-const cors = require('cors')
-require('dotenv').config()
+const express = require("express");
+const mongoose = require("mongoose");
+const userRoutes = require("./routes/user");
+const ratingRoutes = require("./routes/rating");
+const authRoutes = require("./routes/auth");
+const app = express();
+const port = 3000;
 
-const app = express()
-const PORT = 3000
+mongoose
+  .connect("mongodb://localhost:27017/peer-rating-app", {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
+  .then(() => console.log("MongoDB connected"))
+  .catch((err) => console.error(err));
 
-app.use(cors())
+app.use(express.json());
 
-var serviceAccount = require("./serviceAccount.json")
+app.use("/users", userRoutes);
 
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
-  databaseURL: process.env.DATABASE_URL
+app.use("/ratings", ratingRoutes);
+
+app.use("/auth", authRoutes);
+
+app.listen(port, () => {
+  console.log(`Server is running on http://localhost:${port}`);
 });
-
-const db = admin.database()
-const ref = db.ref('/profiles')
-
-app.get('/profile/:muid', async (req, res) => {
-    try {
-    const { muid } = req.params;
-    const apiUrl = `https://mulearn.org/api/v1/dashboard/profile/user-profile/${muid}`;
-    
-    // Making a GET request to the specified API
-    const response = await axios.get(apiUrl);
-    const responseData = [response.data][0].response;
-    const dbData = {userName:responseData.full_name,muid:muid, profile_pic:responseData.profile_pic, roles:responseData.roles, rating:[]}
-    ref.child(muid).set(dbData);
-
-    res.send([response.data][0].response);
-    }
-    catch(err) {
-        console.log(err)
-    }
-})
-
-app.get('/profiles', async (req, res) => {
-    console.log(process.env.DATABASE_URL)
-    const data = await ref.get()
-    res.send(data)
-})
-
-
-app.get('/rate', async (req, res) => {
-    const to = req.query.to
-    const from = req.query.from
-    const rate = req.query.rate
-    const reason = req.query.reason
-    const rateRef = db.ref('/profiles/'+to+'/rates')
-    rateRef.push({to:to, from:from, rate:rate, reason:reason})
-});
-
-app.get('/user', async (req, res) => {
-        try {
-    const muid = req.query.muid;
-    console.log(muid)
-
-    if (!muid) {
-        return res.status(400).json({ error: 'Missing muid parameter' });
-    }
-
-    const snapshot = await ref.child(muid).get();
-
-    if (!snapshot.exists()) {
-        return res.status(404).json({ error: 'User not found' });
-    }
-
-    const userData = snapshot.val();
-    return res.status(200).json(userData);
-} catch (error) {
-    console.error('Error fetching user data:', error);
-    return res.status(500).json({ error: 'Internal server error' });
-}
-})
-
-app.listen(PORT, ()=>console.log('listening on port',PORT));
