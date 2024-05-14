@@ -1,4 +1,4 @@
-// models/Rating.js
+//models/rating.js
 const mongoose = require("mongoose");
 
 const RatingSchema = new mongoose.Schema({

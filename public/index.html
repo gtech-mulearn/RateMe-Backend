@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Peer Rating App</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div id="app">
+      <div id="login">
+        <h2>Login</h2>
+        <input type="text" id="username" placeholder="Username" />
+        <input type="password" id="password" placeholder="Password" />
+        <button onclick="login()">Login</button>
+        <button onclick="showRegister()">Register</button>
+      </div>
+      <div id="register" style="display: none">
+        <h2>Register</h2>
+        <input type="text" id="registerUsername" placeholder="Username" />
+        <input type="password" id="registerPassword" placeholder="Password" />
+        <button onclick="register()">Register</button>
+        <button onclick="showLogin()">Login</button>
+      </div>
+      <div id="dashboard" style="display: none">
+        <h2>Dashboard</h2>
+        <button onclick="logout()">Logout</button>
+        <div id="usersList"></div>
+      </div>
+      <div id="profile" style="display: none">
+        <h2>Profile</h2>
+        <button onclick="showDashboard()">Back</button>
+        <div id="userProfile"></div>
+        <input
+          type="number"
+          id="rating"
+          placeholder="Rating (1-5)"
+          min="1"
+          max="5"
+        />
+        <input type="text" id="feedback" placeholder="Feedback" />
+        <button onclick="submitRating()">Submit Rating</button>
+      </div>
+    </div>
+    <script src="script.js"></script>
+  </body>
+</html>
